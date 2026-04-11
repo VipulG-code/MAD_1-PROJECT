@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}My Applications{% endblock %}
+{% block page_title %}My Applications{% endblock %}
+
+{% block content %}
+{% if applications %}
+<div class="row g-3">
+  {% for app in applications %}
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <span class="status-badge {{ app.status }}">{{ app.status | capitalize }}</span>
+          <span class="text-muted small">{{ app.application_date.strftime('%d %b %Y') }}</span>
+        </div>
+        <div class="drive-company">{{ app.drive.company.company_name }}</div>
+        <div class="drive-title">{{ app.drive.job_title }}</div>
+        <div class="drive-meta">
+          {% if app.drive.location %}<span><i class="bi bi-geo-alt"></i>{{ app.drive.location }}</span>{% endif %}
+          {% if app.drive.package %}<span><i class="bi bi-currency-rupee"></i>{{ app.drive.package }}</span>{% endif %}
+          <span><i class="bi bi-calendar3"></i>Deadline: {{ app.drive.application_deadline.strftime('%d %b %Y') }}</span>
+        </div>
+        {% if app.cover_letter %}
+        <p class="text-muted mt-2 mb-0" style="font-size:0.78rem">
+          <strong>Your note:</strong> {{ app.cover_letter[:120] }}{% if app.cover_letter|length > 120 %}…{% endif %}
+        </p>
+        {% endif %}
+      </div>
+      <div class="card-footer bg-white">
+        <span class="text-muted small">Drive Status: <span class="status-badge {{ app.drive.status }}">{{ app.drive.status }}</span></span>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card">
+  <div class="card-body">
+    <div class="empty-state">
+      <i class="bi bi-file-earmark-text d-block"></i>
+      <p>You haven't applied for any drives yet.<br>
+        <a href="{{ url_for('student_drives') }}" class="btn btn-primary btn-sm mt-2">Browse Drives</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

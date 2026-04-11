@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Student Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Welcome banner -->
+<div class="card mb-4" style="background:linear-gradient(135deg,#1e2d4a,#1e3060);color:white;border:none;">
+  <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div>
+      <h4 style="font-family:'Sora',sans-serif;font-weight:700;margin-bottom:4px">Welcome, {{ student.full_name }}!</h4>
+      <p class="mb-0 opacity-75" style="font-size:0.875rem">
+        <code style="background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:4px;color:white">{{ student.roll_number }}</code>
+        {% if student.branch %}&nbsp;·&nbsp;{{ student.branch }}{% endif %}
+        {% if student.cgpa %}&nbsp;·&nbsp;CGPA: {{ student.cgpa }}{% endif %}
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{{ url_for('student_drives') }}" class="btn btn-light btn-sm"><i class="bi bi-briefcase me-1"></i>Browse Drives</a>
+      <a href="{{ url_for('student_profile') }}" class="btn btn-outline-light btn-sm"><i class="bi bi-person me-1"></i>Edit Profile</a>
+    </div>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-4">
+    <div class="stat-card">
+      <div class="stat-icon blue"><i class="bi bi-briefcase-fill"></i></div>
+      <div><div class="stat-value">{{ approved_drives|length }}</div><div class="stat-label">Open Drives</div></div>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="stat-card">
+      <div class="stat-icon amber"><i class="bi bi-file-earmark-check-fill"></i></div>
+      <div><div class="stat-value">{{ my_applications|length }}</div><div class="stat-label">My Applications</div></div>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="stat-card">
+      <div class="stat-icon green"><i class="bi bi-trophy-fill"></i></div>
+      <div>
+        <div class="stat-value">{{ my_applications | selectattr('status','eq','selected') | list | length }}</div>
+        <div class="stat-label">Selected</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <!-- Available drives -->
+  <div class="col-lg-7">
+    <div class="section-header">
+      <span class="section-title"><i class="bi bi-briefcase me-2"></i>Available Drives</span>
+      <a href="{{ url_for('student_drives') }}" class="btn btn-sm btn-outline-primary">View All</a>
+    </div>
+    {% if approved_drives %}
+      {% for drive in approved_drives[:4] %}
+      <div class="drive-card mb-3">
+        <div class="drive-company">{{ drive.company.company_name }}</div>
+        <div class="drive-title">{{ drive.job_title }}</div>
+        <div class="drive-meta mb-3">
+          {% if drive.location %}<span><i class="bi bi-geo-alt"></i>{{ drive.location }}</span>{% endif %}
+          {% if drive.package %}<span><i class="bi bi-currency-rupee"></i>{{ drive.package }}</span>{% endif %}
+          <span><i class="bi bi-calendar3"></i>{{ drive.application_deadline.strftime('%d %b %Y') }}</span>
+        </div>
+        {% if drive.id in applied_drive_ids %}
+          <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Applied</span>
+        {% elif drive.application_deadline < today %}
+          <span class="badge bg-secondary">Deadline Passed</span>
+        {% else %}
+          <a href="{{ url_for('student_drive_detail', drive_id=drive.id) }}" class="btn btn-sm btn-primary">Apply Now</a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="card"><div class="card-body"><div class="empty-state"><i class="bi bi-briefcase d-block"></i><p>No open drives right now</p></div></div></div>
+    {% endif %}
+  </div>
+
+  <!-- My applications -->
+  <div class="col-lg-5">
+    <div class="section-header">
+      <span class="section-title"><i class="bi bi-file-earmark-check me-2"></i>Recent Applications</span>
+      <a href="{{ url_for('student_applications') }}" class="btn btn-sm btn-outline-primary">View All</a>
+    </div>
+    {% if my_applications %}
+      {% for app in my_applications[:5] %}
+      <div class="card mb-2">
+        <div class="card-body py-2 px-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="fw-semibold" style="font-size:0.875rem">{{ app.drive.job_title }}</div>
+              <div class="text-muted" style="font-size:0.75rem">{{ app.drive.company.company_name }}</div>
+            </div>
+            <span class="status-badge {{ app.status }}">{{ app.status }}</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="card"><div class="card-body"><div class="empty-state"><i class="bi bi-file-earmark d-block"></i><p>No applications yet</p></div></div></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stat cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-icon blue"><i class="bi bi-people-fill"></i></div>
+      <div>
+        <div class="stat-value">{{ total_students }}</div>
+        <div class="stat-label">Total Students</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-icon green"><i class="bi bi-buildings-fill"></i></div>
+      <div>
+        <div class="stat-value">{{ total_companies }}</div>
+        <div class="stat-label">Approved Companies</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-icon purple"><i class="bi bi-briefcase-fill"></i></div>
+      <div>
+        <div class="stat-value">{{ total_drives }}</div>
+        <div class="stat-label">Total Drives</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-icon amber"><i class="bi bi-file-earmark-text-fill"></i></div>
+      <div>
+        <div class="stat-value">{{ total_applications }}</div>
+        <div class="stat-label">Applications</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pending actions -->
+{% if pending_companies > 0 or pending_drives > 0 %}
+<div class="row g-3 mb-4">
+  {% if pending_companies > 0 %}
+  <div class="col-md-6">
+    <div class="alert alert-warning d-flex align-items-center justify-content-between mb-0 rounded-3">
+      <div><i class="bi bi-clock me-2"></i><strong>{{ pending_companies }}</strong> company registration(s) awaiting approval</div>
+      <a href="{{ url_for('admin_companies', status='pending') }}" class="btn btn-warning btn-sm">Review</a>
+    </div>
+  </div>
+  {% endif %}
+  {% if pending_drives > 0 %}
+  <div class="col-md-6">
+    <div class="alert alert-info d-flex align-items-center justify-content-between mb-0 rounded-3">
+      <div><i class="bi bi-hourglass-split me-2"></i><strong>{{ pending_drives }}</strong> placement drive(s) awaiting approval</div>
+      <a href="{{ url_for('admin_drives', status='pending') }}" class="btn btn-info btn-sm text-white">Review</a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- Recent applications -->
+<div class="card">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <span><i class="bi bi-clock-history me-2"></i>Recent Applications</span>
+    <a href="{{ url_for('admin_applications') }}" class="btn btn-sm btn-outline-primary">View All</a>
+  </div>
+  <div class="card-body p-0">
+    {% if recent_applications %}
+    <div class="table-responsive">
+      <table class="table mb-0">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Drive</th>
+            <th>Company</th>
+            <th>Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for app in recent_applications %}
+          <tr>
+            <td><strong>{{ app.student.full_name }}</strong><br><span class="text-muted" style="font-size:0.75rem">{{ app.student.roll_number }}</span></td>
+            <td>{{ app.drive.job_title }}</td>
+            <td>{{ app.drive.company.company_name }}</td>
+            <td>{{ app.application_date.strftime('%d %b %Y') }}</td>
+            <td><span class="status-badge {{ app.status }}">{{ app.status }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="bi bi-inbox d-block"></i>
+      <p>No applications yet</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

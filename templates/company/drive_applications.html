@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Applications – {{ drive.job_title }}{% endblock %}
+{% block page_title %}Drive Applications{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <a href="{{ url_for('company_dashboard') }}" class="btn btn-sm btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+  </a>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div>
+        <h5 style="font-family:'Sora',sans-serif;font-weight:700;margin-bottom:4px">{{ drive.job_title }}</h5>
+        <div class="drive-meta">
+          {% if drive.location %}<span><i class="bi bi-geo-alt"></i>{{ drive.location }}</span>{% endif %}
+          {% if drive.package %}<span><i class="bi bi-currency-rupee"></i>{{ drive.package }}</span>{% endif %}
+          <span><i class="bi bi-calendar3"></i>Deadline: {{ drive.application_deadline.strftime('%d %b %Y') }}</span>
+        </div>
+      </div>
+      <span class="status-badge {{ drive.status }}">{{ drive.status }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><i class="bi bi-people me-2"></i>Applications ({{ applications|length }})</div>
+  <div class="card-body p-0">
+    {% if applications %}
+    <div class="table-responsive">
+      <table class="table mb-0">
+        <thead>
+          <tr><th>Student</th><th>Roll No.</th><th>CGPA</th><th>Branch</th><th>Applied On</th><th>Status</th><th>Update Status</th></tr>
+        </thead>
+        <tbody>
+          {% for app in applications %}
+          <tr>
+            <td>
+              <strong>{{ app.student.full_name }}</strong><br>
+              <span class="text-muted" style="font-size:0.75rem">{{ app.student.user.email }}</span>
+              {% if app.student.resume_filename %}
+                <br><a href="{{ url_for('static', filename='uploads/resumes/' + app.student.resume_filename) }}" target="_blank" class="text-primary" style="font-size:0.75rem"><i class="bi bi-file-earmark-pdf me-1"></i>Resume</a>
+              {% endif %}
+            </td>
+            <td><code>{{ app.student.roll_number }}</code></td>
+            <td>{{ app.student.cgpa or '—' }}</td>
+            <td>{{ app.student.branch or '—' }}</td>
+            <td>{{ app.application_date.strftime('%d %b %Y') }}</td>
+            <td><span class="status-badge {{ app.status }}">{{ app.status }}</span></td>
+            <td>
+              <form method="POST" action="{{ url_for('company_update_application', app_id=app.id) }}" class="d-flex gap-1">
+                <select name="status" class="form-select form-select-sm" style="width:130px">
+                  <option value="applied"      {% if app.status=='applied'      %}selected{% endif %}>Applied</option>
+                  <option value="shortlisted"  {% if app.status=='shortlisted'  %}selected{% endif %}>Shortlisted</option>
+                  <option value="selected"     {% if app.status=='selected'     %}selected{% endif %}>Selected</option>
+                  <option value="rejected"     {% if app.status=='rejected'     %}selected{% endif %}>Rejected</option>
+                </select>
+                <button type="submit" class="btn btn-sm btn-primary">Update</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="bi bi-people d-block"></i>
+      <p>No applications yet for this drive</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}{{ drive.job_title }}{% endblock %}
+{% block page_title %}Drive Details{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <a href="{{ url_for('student_drives') }}" class="btn btn-sm btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>Back to Drives
+  </a>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="drive-company mb-1">{{ drive.company.company_name }}</div>
+        <h3 style="font-family:'Sora',sans-serif;font-weight:700">{{ drive.job_title }}</h3>
+        <div class="drive-meta mb-3">
+          {% if drive.location %}<span><i class="bi bi-geo-alt"></i>{{ drive.location }}</span>{% endif %}
+          {% if drive.package %}<span><i class="bi bi-currency-rupee"></i>{{ drive.package }}</span>{% endif %}
+          <span><i class="bi bi-calendar3"></i>Deadline: {{ drive.application_deadline.strftime('%d %b %Y') }}</span>
+          <span><i class="bi bi-people"></i>{{ drive.applications|length }} applicant(s)</span>
+        </div>
+
+        {% if drive.job_description %}
+        <h6 class="fw-bold mb-2">Job Description</h6>
+        <p style="font-size:0.875rem;line-height:1.7;white-space:pre-wrap">{{ drive.job_description }}</p>
+        {% endif %}
+
+        {% if drive.eligibility_criteria %}
+        <h6 class="fw-bold mb-2 mt-3">Eligibility Criteria</h6>
+        <p style="font-size:0.875rem;line-height:1.7;white-space:pre-wrap">{{ drive.eligibility_criteria }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    {% if existing_app %}
+    <div class="card">
+      <div class="card-body text-center py-4">
+        <div style="width:56px;height:56px;background:rgba(16,185,129,0.12);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.5rem;color:#10b981">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <h6 style="font-family:'Sora',sans-serif;font-weight:700">Application Submitted</h6>
+        <p class="text-muted small mb-3">Applied on {{ existing_app.application_date.strftime('%d %b %Y') }}</p>
+        <span class="status-badge {{ existing_app.status }} d-inline-block">{{ existing_app.status | capitalize }}</span>
+        <div class="mt-3">
+          <a href="{{ url_for('student_applications') }}" class="btn btn-sm btn-outline-primary">View All Applications</a>
+        </div>
+      </div>
+    </div>
+    {% elif drive.application_deadline < today %}
+    <div class="card">
+      <div class="card-body text-center py-4">
+        <div style="width:56px;height:56px;background:#fee2e2;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.5rem;color:#ef4444">
+          <i class="bi bi-calendar-x"></i>
+        </div>
+        <h6 style="font-family:'Sora',sans-serif;font-weight:700">Deadline Passed</h6>
+        <p class="text-muted small mb-0">The application deadline was {{ drive.application_deadline.strftime('%d %b %Y') }}</p>
+      </div>
+    </div>
+    {% else %}
+    <div class="card">
+      <div class="card-header"><i class="bi bi-send me-2"></i>Apply for this Drive</div>
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('student_apply', drive_id=drive.id) }}">
+          <div class="mb-3">
+            <label class="form-label">Cover Letter <span class="text-muted fw-normal">(optional)</span></label>
+            <textarea name="cover_letter" class="form-control" rows="5"
+              placeholder="Briefly explain why you're a good fit for this role..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-send me-2"></i>Submit Application
+          </button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

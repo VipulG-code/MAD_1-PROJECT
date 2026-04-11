@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Register Company{% endblock %}
+
+{% block auth_content %}
+<div class="auth-page">
+  <div class="auth-card" style="max-width:540px;">
+    <div class="auth-brand">
+      <div class="auth-brand-icon"><i class="bi bi-building-check"></i></div>
+      <span class="auth-brand-name">CampusHire</span>
+    </div>
+    <h1 class="auth-title">Company Registration</h1>
+    <p class="auth-sub">Register your company to post placement drives. Admin approval required.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-custom">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="POST">
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label">Company Name <span class="text-danger">*</span></label>
+          <input type="text" name="company_name" class="form-control" required placeholder="Official company name">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Username <span class="text-danger">*</span></label>
+          <input type="text" name="username" class="form-control" required placeholder="Login username">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Email <span class="text-danger">*</span></label>
+          <input type="email" name="email" class="form-control" required placeholder="hr@company.com">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Password <span class="text-danger">*</span></label>
+          <input type="password" name="password" class="form-control" required placeholder="Min 6 characters">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">HR Contact</label>
+          <input type="text" name="hr_contact" class="form-control" placeholder="HR person name / phone">
+        </div>
+        <div class="col-12">
+          <label class="form-label">Company Website</label>
+          <input type="url" name="website" class="form-control" placeholder="https://www.company.com">
+        </div>
+        <div class="col-12">
+          <label class="form-label">Company Description</label>
+          <textarea name="description" class="form-control" rows="3" placeholder="Brief description of your company..."></textarea>
+        </div>
+        <div class="col-12 mt-2">
+          <button type="submit" class="btn btn-primary w-100 py-2">
+            <i class="bi bi-buildings me-2"></i>Submit Registration
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <div class="alert alert-warning alert-custom mt-3 mb-0">
+      <i class="bi bi-clock me-1"></i>
+      <strong>Note:</strong> Your registration will be reviewed by admin before you can log in.
+    </div>
+
+    <p class="text-center text-muted small mt-3 mb-0">
+      Already registered? <a href="{{ url_for('login') }}" class="text-primary fw-semibold">Login here</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

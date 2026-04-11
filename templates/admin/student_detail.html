@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}{{ student.full_name }}{% endblock %}
+{% block page_title %}Student Detail{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <a href="{{ url_for('admin_students') }}" class="btn btn-sm btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>Back to Students
+  </a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <i class="bi bi-person me-2"></i>Student Profile
+        {% if student.is_blacklisted %}<span class="status-badge blacklisted ms-2">Blacklisted</span>{% endif %}
+      </div>
+      <div class="card-body">
+        <h4 style="font-family:'Sora',sans-serif;font-weight:700">{{ student.full_name }}</h4>
+        <div class="row g-3 mt-1">
+          <div class="col-sm-4"><span class="text-muted small">Roll Number</span><div class="fw-semibold"><code>{{ student.roll_number }}</code></div></div>
+          <div class="col-sm-4"><span class="text-muted small">Email</span><div class="fw-semibold">{{ student.user.email }}</div></div>
+          <div class="col-sm-4"><span class="text-muted small">Phone</span><div class="fw-semibold">{{ student.phone or '—' }}</div></div>
+          <div class="col-sm-4"><span class="text-muted small">Branch</span><div class="fw-semibold">{{ student.branch or '—' }}</div></div>
+          <div class="col-sm-4"><span class="text-muted small">CGPA</span><div class="fw-semibold">{{ student.cgpa or '—' }}</div></div>
+          <div class="col-sm-4"><span class="text-muted small">Joined</span><div class="fw-semibold">{{ student.created_at.strftime('%d %b %Y') }}</div></div>
+          <div class="col-sm-4"><span class="text-muted small">Resume</span><div>{% if student.resume_filename %}
+            <a href="{{ url_for('static', filename='uploads/resumes/' + student.resume_filename) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-file-earmark-pdf me-1"></i>View Resume
+            </a>{% else %}Not uploaded{% endif %}
+          </div></div>
+        </div>
+      </div>
+      <div class="card-footer bg-white d-flex gap-2">
+        <a href="{{ url_for('admin_blacklist_student', student_id=student.id) }}"
+           class="btn btn-sm {% if student.is_blacklisted %}btn-outline-secondary{% else %}btn-outline-danger{% endif %}">
+          {% if student.is_blacklisted %}Unblacklist{% else %}Blacklist{% endif %}
+        </a>
+        <a href="{{ url_for('admin_delete_student', student_id=student.id) }}" class="btn btn-danger btn-sm"
+           onclick="return confirm('Delete this student?')">Delete</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card">
+      <div class="stat-icon amber"><i class="bi bi-file-earmark-text-fill"></i></div>
+      <div><div class="stat-value">{{ applications|length }}</div><div class="stat-label">Total Applications</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><i class="bi bi-clock-history me-2"></i>Application History</div>
+  <div class="card-body p-0">
+    {% if applications %}
+    <div class="table-responsive">
+      <table class="table mb-0">
+        <thead><tr><th>Drive</th><th>Company</th><th>Applied On</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for app in applications %}
+          <tr>
+            <td><strong>{{ app.drive.job_title }}</strong></td>
+            <td>{{ app.drive.company.company_name }}</td>
+            <td>{{ app.application_date.strftime('%d %b %Y') }}</td>
+            <td><span class="status-badge {{ app.status }}">{{ app.status }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state"><i class="bi bi-file-earmark d-block"></i><p>No applications yet</p></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

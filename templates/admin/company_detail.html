@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}{{ company.company_name }}{% endblock %}
+{% block page_title %}Company Detail{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <a href="{{ url_for('admin_companies') }}" class="btn btn-sm btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>Back to Companies
+  </a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-8">
+    <div class="card h-100">
+      <div class="card-header">
+        <i class="bi bi-buildings me-2"></i>Company Profile
+        {% if company.is_blacklisted %}<span class="status-badge blacklisted ms-2">Blacklisted</span>{% endif %}
+      </div>
+      <div class="card-body">
+        <h4 class="mb-1" style="font-family:'Sora',sans-serif;font-weight:700">{{ company.company_name }}</h4>
+        <p class="text-muted mb-3">{{ company.description or 'No description provided.' }}</p>
+        <div class="row g-2">
+          <div class="col-sm-6"><span class="text-muted small">HR Contact</span><div class="fw-semibold">{{ company.hr_contact or '—' }}</div></div>
+          <div class="col-sm-6"><span class="text-muted small">Website</span>
+            <div>{% if company.website %}<a href="{{ company.website }}" target="_blank">{{ company.website }}</a>{% else %}—{% endif %}</div>
+          </div>
+          <div class="col-sm-6"><span class="text-muted small">Email</span><div class="fw-semibold">{{ company.user.email }}</div></div>
+          <div class="col-sm-6"><span class="text-muted small">Registered</span><div class="fw-semibold">{{ company.created_at.strftime('%d %b %Y') }}</div></div>
+          <div class="col-sm-6"><span class="text-muted small">Status</span><div><span class="status-badge {{ company.approval_status }}">{{ company.approval_status }}</span></div></div>
+        </div>
+      </div>
+      <div class="card-footer bg-white d-flex gap-2 flex-wrap">
+        {% if company.approval_status == 'pending' %}
+          <a href="{{ url_for('admin_approve_company', company_id=company.id) }}" class="btn btn-success btn-sm">Approve</a>
+          <a href="{{ url_for('admin_reject_company', company_id=company.id) }}" class="btn btn-warning btn-sm">Reject</a>
+        {% elif company.approval_status == 'approved' %}
+          <a href="{{ url_for('admin_reject_company', company_id=company.id) }}" class="btn btn-warning btn-sm">Revoke Approval</a>
+        {% elif company.approval_status == 'rejected' %}
+          <a href="{{ url_for('admin_approve_company', company_id=company.id) }}" class="btn btn-success btn-sm">Approve</a>
+        {% endif %}
+        <a href="{{ url_for('admin_blacklist_company', company_id=company.id) }}" class="btn btn-sm {% if company.is_blacklisted %}btn-outline-secondary{% else %}btn-outline-danger{% endif %}">
+          {% if company.is_blacklisted %}Unblacklist{% else %}Blacklist{% endif %}
+        </a>
+        <a href="{{ url_for('admin_delete_company', company_id=company.id) }}" class="btn btn-danger btn-sm"
+           onclick="return confirm('Delete this company and all its data?')">Delete</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card h-100">
+      <div class="stat-icon blue"><i class="bi bi-briefcase-fill"></i></div>
+      <div>
+        <div class="stat-value">{{ drives|length }}</div>
+        <div class="stat-label">Placement Drives</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><i class="bi bi-briefcase me-2"></i>Placement Drives by {{ company.company_name }}</div>
+  <div class="card-body p-0">
+    {% if drives %}
+    <div class="table-responsive">
+      <table class="table mb-0">
+        <thead><tr><th>Job Title</th><th>Location</th><th>Deadline</th><th>Applications</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for drive in drives %}
+          <tr>
+            <td><strong>{{ drive.job_title }}</strong></td>
+            <td>{{ drive.location or '—' }}</td>
+            <td>{{ drive.application_deadline.strftime('%d %b %Y') }}</td>
+            <td>{{ drive.applications|length }}</td>
+            <td><span class="status-badge {{ drive.status }}">{{ drive.status }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state"><i class="bi bi-briefcase d-block"></i><p>No drives created yet</p></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

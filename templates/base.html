@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Placement Portal{% endblock %} | CampusHire</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" />
+</head>
+<body>
+
+{% if current_user.is_authenticated %}
+<div class="app-wrapper">
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-logo">
+        <i class="bi bi-building-check"></i>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">CampusHire</span>
+        <span class="brand-role">
+          {% if current_user.role == 'admin' %}Admin Panel
+          {% elif current_user.role == 'company' %}Company Portal
+          {% else %}Student Portal{% endif %}
+        </span>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">{{ current_user.username[0].upper() }}</div>
+      <div class="user-info">
+        <span class="user-name">{{ current_user.username }}</span>
+        <span class="user-role badge-role-{{ current_user.role }}">{{ current_user.role | capitalize }}</span>
+      </div>
+    </div>
+
+    <ul class="nav flex-column sidebar-nav">
+      {% if current_user.role == 'admin' %}
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}" href="{{ url_for('admin_dashboard') }}">
+            <i class="bi bi-speedometer2"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if 'companies' in request.endpoint %}active{% endif %}" href="{{ url_for('admin_companies') }}">
+            <i class="bi bi-buildings"></i> Companies
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if 'students' in request.endpoint %}active{% endif %}" href="{{ url_for('admin_students') }}">
+            <i class="bi bi-people"></i> Students
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'admin_drives' %}active{% endif %}" href="{{ url_for('admin_drives') }}">
+            <i class="bi bi-briefcase"></i> Placement Drives
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'admin_applications' %}active{% endif %}" href="{{ url_for('admin_applications') }}">
+            <i class="bi bi-file-earmark-text"></i> Applications
+          </a>
+        </li>
+
+      {% elif current_user.role == 'company' %}
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'company_dashboard' %}active{% endif %}" href="{{ url_for('company_dashboard') }}">
+            <i class="bi bi-speedometer2"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'company_create_drive' %}active{% endif %}" href="{{ url_for('company_create_drive') }}">
+            <i class="bi bi-plus-circle"></i> New Drive
+          </a>
+        </li>
+
+      {% elif current_user.role == 'student' %}
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'student_dashboard' %}active{% endif %}" href="{{ url_for('student_dashboard') }}">
+            <i class="bi bi-speedometer2"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'student_drives' %}active{% endif %}" href="{{ url_for('student_drives') }}">
+            <i class="bi bi-briefcase"></i> Browse Drives
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'student_applications' %}active{% endif %}" href="{{ url_for('student_applications') }}">
+            <i class="bi bi-file-earmark-check"></i> My Applications
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'student_profile' %}active{% endif %}" href="{{ url_for('student_profile') }}">
+            <i class="bi bi-person-circle"></i> My Profile
+          </a>
+        </li>
+      {% endif %}
+    </ul>
+
+    <div class="sidebar-footer">
+      <a href="{{ url_for('logout') }}" class="nav-link logout-link">
+        <i class="bi bi-box-arrow-left"></i> Logout
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h5 class="page-title mb-0">{% block page_title %}Dashboard{% endblock %}</h5>
+      </div>
+      <div class="topbar-right">
+        <span class="text-muted small">{{ current_user.email }}</span>
+      </div>
+    </div>
+
+    <div class="content-area">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show alert-custom" role="alert">
+              <i class="bi bi-{% if category == 'success' %}check-circle{% elif category == 'danger' %}x-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+
+{% else %}
+  <!-- Unauthenticated layout -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index:9999;min-width:320px">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show shadow" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  {% block auth_content %}{% endblock %}
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

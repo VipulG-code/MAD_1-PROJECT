@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Browse Drives{% endblock %}
+{% block page_title %}Browse Placement Drives{% endblock %}
+
+{% block content %}
+{% if drives %}
+<div class="row g-3">
+  {% for drive in drives %}
+  <div class="col-md-6 col-lg-4">
+    <div class="drive-card h-100 d-flex flex-column">
+      <div class="drive-company">{{ drive.company.company_name }}</div>
+      <div class="drive-title">{{ drive.job_title }}</div>
+      <div class="drive-meta mb-2">
+        {% if drive.location %}<span><i class="bi bi-geo-alt"></i>{{ drive.location }}</span>{% endif %}
+        {% if drive.package %}<span><i class="bi bi-currency-rupee"></i>{{ drive.package }}</span>{% endif %}
+        <span><i class="bi bi-calendar3"></i>Deadline: {{ drive.application_deadline.strftime('%d %b %Y') }}</span>
+        <span><i class="bi bi-people"></i>{{ drive.applications|length }} applied</span>
+      </div>
+      {% if drive.eligibility_criteria %}
+      <p class="text-muted mb-3" style="font-size:0.78rem;line-height:1.5">
+        <strong>Eligibility:</strong> {{ drive.eligibility_criteria[:120] }}{% if drive.eligibility_criteria|length > 120 %}…{% endif %}
+      </p>
+      {% endif %}
+      <div class="mt-auto">
+        {% if drive.id in applied_drive_ids %}
+          <span class="badge bg-success py-2 px-3"><i class="bi bi-check-circle me-1"></i>Applied</span>
+        {% elif drive.application_deadline < today %}
+          <span class="badge bg-secondary py-2 px-3">Deadline Passed</span>
+        {% else %}
+          <a href="{{ url_for('student_drive_detail', drive_id=drive.id) }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-send me-1"></i>View & Apply
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card">
+  <div class="card-body">
+    <div class="empty-state">
+      <i class="bi bi-briefcase d-block"></i>
+      <p>No approved placement drives available right now.<br>Check back later!</p>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

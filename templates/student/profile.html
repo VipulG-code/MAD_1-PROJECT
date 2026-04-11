@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}My Profile{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-person-circle me-2"></i>Edit Profile</div>
+      <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Full Name</label>
+              <input type="text" name="full_name" class="form-control" value="{{ student.full_name }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" class="form-control" value="{{ current_user.email }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Branch / Department</label>
+              <input type="text" name="branch" class="form-control" value="{{ student.branch or '' }}" placeholder="e.g. Computer Science">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">CGPA</label>
+              <input type="number" name="cgpa" class="form-control" step="0.01" min="0" max="10" value="{{ student.cgpa or '' }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Phone</label>
+              <input type="tel" name="phone" class="form-control" value="{{ student.phone or '' }}">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Upload Resume <span class="text-muted fw-normal">(PDF/DOC, max 5MB)</span></label>
+              <input type="file" name="resume" class="form-control" accept=".pdf,.doc,.docx">
+              {% if student.resume_filename %}
+              <div class="mt-2">
+                <i class="bi bi-file-earmark-check text-success me-1"></i>
+                <span class="text-muted small">Current: </span>
+                <a href="{{ url_for('static', filename='uploads/resumes/' + student.resume_filename) }}" target="_blank" class="text-primary small">
+                  View uploaded resume
+                </a>
+              </div>
+              {% endif %}
+            </div>
+            <div class="col-12 mt-1">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save me-2"></i>Save Changes
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-info-circle me-2"></i>Account Info</div>
+      <div class="card-body">
+        <div class="mb-3">
+          <span class="text-muted small">Username</span>
+          <div class="fw-semibold">{{ current_user.username }}</div>
+        </div>
+        <div class="mb-3">
+          <span class="text-muted small">Roll Number</span>
+          <div><code>{{ student.roll_number }}</code></div>
+        </div>
+        <div class="mb-3">
+          <span class="text-muted small">Member Since</span>
+          <div class="fw-semibold">{{ student.created_at.strftime('%d %b %Y') }}</div>
+        </div>
+        <div>
+          <span class="text-muted small">Account Status</span>
+          <div>
+            {% if student.is_blacklisted %}
+              <span class="status-badge blacklisted">Blacklisted</span>
+            {% else %}
+              <span class="status-badge approved">Active</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
